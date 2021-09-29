@@ -10,6 +10,7 @@ import cats.syntax.all._
 import fs2.Stream
 import doobie._
 import doobie.implicits._
+import doobie.free.connection.connectionIOCompiler
 
 // JDBC program using the high-level API
 object HiUsage extends IOApp.Simple {
@@ -30,7 +31,7 @@ object HiUsage extends IOApp.Simple {
 
   // An example action. Streams results to stdout
   lazy val example: ConnectionIO[Unit] =
-    speakerQuery("English", 10).evalMap(c => FC.delay(println(show"~> $c"))).compile.drain
+    speakerQuery("English", 10).evalMap(c => FC.delay(println(show"~> $c"))).compile(connectionIOCompiler).drain
 
   // Construct an action to find countries where more than `pct` of the population speaks `lang`.
   // The result is a fs2.Stream that can be further manipulated by the caller.

@@ -6,6 +6,7 @@ package doobie.bench
 
 import cats.syntax.all._
 import doobie._
+import doobie.free.connection.connectionIOCompiler
 import doobie.implicits._
 import doobie.postgres.implicits._
 import fs2._
@@ -43,7 +44,7 @@ class text {
     )
 
   def copyin_stream(n: Int): ConnectionIO[Long] =
-    ddl *> sql"COPY bench_person (name, age) FROM STDIN".copyIn(Stream.emits[ConnectionIO, Person](people(n)), 10000)
+    ddl *> sql"COPY bench_person (name, age) FROM STDIN".copyIn(Stream.emits[ConnectionIO, Person](people(n)), 10000)(implicitly, connectionIOCompiler)
 
   def copyin_foldable(n: Int): ConnectionIO[Long] =
     ddl *> sql"COPY bench_person (name, age) FROM STDIN".copyIn(people(n))

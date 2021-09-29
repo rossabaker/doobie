@@ -41,7 +41,7 @@ class FragmentOps(f: Fragment) {
   def copyIn[A: Text](
     stream: Stream[ConnectionIO, A],
     minChunkSize: Int
-  ): ConnectionIO[Long] = {
+  )(implicit C: Compiler[ConnectionIO, ConnectionIO]): ConnectionIO[Long] = {
 
     val byteStream: Stream[ConnectionIO, Byte] =
       stream.chunkMin(minChunkSize).map(foldToString(_)).through(utf8Encode)

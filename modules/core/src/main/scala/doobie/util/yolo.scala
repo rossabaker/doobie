@@ -9,13 +9,13 @@ import cats.effect.kernel.Async
 import cats.instances.int._
 import cats.instances.string._
 import cats.syntax.show._
-import doobie.free.connection.{ ConnectionIO, delay }
+import doobie.free.connection.{ ConnectionIO, connectionIOCompiler, delay }
 import doobie.implicits._
 import doobie.util.query._
 import doobie.util.update._
 import doobie.util.testing._
 import doobie.util.transactor._
-import fs2.Stream
+import fs2.{ Compiler, Stream }
 import scala.Predef._
 import org.tpolecat.typename._
 
@@ -24,7 +24,9 @@ import org.tpolecat.typename._
 object yolo {
 
   class Yolo[M[_]](xa: Transactor[M])(implicit ev: Async[M]) {
-
+    // It's always fine to be unsafe in yolo
+    implicit def signTheWaiver: Compiler[ConnectionIO, ConnectionIO] =
+      connectionIOCompiler
 
     private def out(s: String, colors: Colors): ConnectionIO[Unit] =
       delay(Console.println(show"${colors.BLUE}  $s${colors.RESET}"))

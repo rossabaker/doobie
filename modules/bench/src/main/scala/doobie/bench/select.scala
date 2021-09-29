@@ -6,6 +6,7 @@ package doobie.bench
 
 import cats.effect.IO
 import doobie._, doobie.implicits._
+import doobie.free.connection.connectionIOCompiler
 import java.sql.DriverManager
 import org.openjdk.jmh.annotations._
 
@@ -52,7 +53,8 @@ class bench {
     sql"select a.name, b.name, c.name from country a, country b, country c limit $n"
       .query[(String,String,String)]
       .stream
-      .compile.toList
+      .compile(connectionIOCompiler)
+      .toList
       .transact(xa)
       .map(_.length)
       .unsafeRunSync()

@@ -7,13 +7,13 @@ package doobie.postgres.hi
 import cats.syntax.functor._
 import doobie.ConnectionIO
 import doobie.implicits._
-import fs2.Stream
+import fs2.{Compiler, Stream}
 import java.io.{InputStream, OutputStream}
 import org.postgresql.largeobject.LargeObject
 
 object lostreaming {
 
-  def createLOFromStream(data: Stream[ConnectionIO, Byte]): ConnectionIO[Long] =
+  def createLOFromStream(data: Stream[ConnectionIO, Byte])(implicit C: Compiler[ConnectionIO, ConnectionIO]): ConnectionIO[Long] =
     createLO.flatMap { oid =>
       Stream.bracket(openLO(oid))(closeLO)
         .flatMap(lo => data.through(fs2.io.writeOutputStream(getOutputStream(lo))))

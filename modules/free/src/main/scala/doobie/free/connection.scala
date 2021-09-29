@@ -8,6 +8,7 @@ import cats.~>
 import cats.effect.kernel.{ CancelScope, Poll, Sync }
 import cats.free.{ Free => FF } // alias because some algebras have an op called Free
 import doobie.WeakAsync
+import fs2.Compiler
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 
@@ -463,5 +464,8 @@ object connection { module =>
       override def onCancel[A](fa: ConnectionIO[A], fin: ConnectionIO[Unit]): ConnectionIO[A] = module.onCancel(fa, fin)
       override def fromFuture[A](fut: ConnectionIO[Future[A]]): ConnectionIO[A] = module.fromFuture(fut)
     }
+
+  val connectionIOCompiler: Compiler[ConnectionIO, ConnectionIO] =
+    Compiler.target(Compiler.Target.forSync[ConnectionIO])
 }
 

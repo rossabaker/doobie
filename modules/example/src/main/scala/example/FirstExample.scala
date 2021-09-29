@@ -8,8 +8,9 @@ package example
 import cats.Show
 import cats.syntax.all._
 import cats.effect.{ IO, IOApp }
-import fs2.Stream
+import fs2.{ Compiler, Stream }
 import doobie._, doobie.implicits._
+import doobie.free.connection.connectionIOCompiler
 
 // Example lifted from slick
 object FirstExample extends IOApp.Simple {
@@ -38,7 +39,10 @@ object FirstExample extends IOApp.Simple {
   )
 
   // Our example database action
-  def examples: ConnectionIO[String] =
+  def examples: ConnectionIO[String] = {
+    implicit val signedWaiver: Compiler[ConnectionIO, ConnectionIO] =
+      connectionIOCompiler
+
     for {
 
     // Create and populate
@@ -63,6 +67,7 @@ object FirstExample extends IOApp.Simple {
       _ <- putStrLn(v.toString)
 
     } yield "All done!"
+  }
 
   // Entry point.
   def run: IO[Unit] = {
